@@ -4,3 +4,10 @@ __pycache__/
 .pytest_cache/
 .env
 .freebuff/
+
+# ---- Web app ----
+node_modules/
+frontend/dist/
+.venv/
+backend/.env
+.DS_Store
