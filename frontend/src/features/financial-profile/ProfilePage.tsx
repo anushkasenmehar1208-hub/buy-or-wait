@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { profileApi } from '../../services/endpoints';
 import type { Commitment, Expense, Income, Profile } from '../../types';
-import { Button, Card, ConfirmDialog, Input, Select, toast } from '../../components/ui';
+import { Button, Card, ConfirmDialog, Input, Select, Skeleton, toast } from '../../components/ui';
 import { ApiError } from '../../services/api';
 
 const FREQUENCIES = [
@@ -33,7 +33,23 @@ export function ProfilePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return null;
+  // Render the page skeleton immediately on navigation — the profile fetch
+  // continues in the background and swaps in the real content when done.
+  if (loading) {
+    return (
+      <div className="space-y-8 animate-fade-in">
+        <div>
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="mt-2 h-4 w-80" />
+        </div>
+        <Skeleton className="h-56" />
+        <Skeleton className="h-44" />
+        <Skeleton className="h-44" />
+        <Skeleton className="h-40" />
+        <Skeleton className="h-40" />
+      </div>
+    );
+  }
   if (!profile) return <ProfileSetup onSaved={setProfile} />;
 
   return (
