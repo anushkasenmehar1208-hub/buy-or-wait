@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../features/auth/AuthContext';
+import { initTheme, watchSystemTheme } from '../utils/theme';
 import { ProtectedLayout } from './ProtectedLayout';
 import { Toaster } from '../components/ui';
 import { SignInPage } from '../features/auth/SignInPage';
@@ -11,6 +13,11 @@ import { DecisionDetailPage } from '../features/history/DecisionDetailPage';
 import { HistoryPage } from '../features/history/HistoryPage';
 
 export default function App() {
+  useEffect(() => {
+    initTheme();
+    return watchSystemTheme();
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>

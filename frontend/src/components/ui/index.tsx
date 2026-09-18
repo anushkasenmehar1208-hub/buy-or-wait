@@ -127,10 +127,10 @@ export function Skeleton({ className = '' }: { className?: string }) {
 }
 
 const badgeStyles: Record<string, string> = {
-  buy_now: 'bg-sage-100 text-sage-700',
+  buy_now: 'bg-sage-100 text-sage-700 dark:bg-sage-800 dark:text-sage-100',
   affordable_with_plan: 'bg-ink-100 text-ink-700',
-  wait: 'bg-amber-400/15 text-amber-600',
-  not_affordable: 'bg-rose-400/10 text-rose-600',
+  wait: 'bg-amber-400/15 text-amber-600 dark:text-amber-400',
+  not_affordable: 'bg-rose-400/10 text-rose-600 dark:text-rose-400',
 };
 
 const badgeLabels: Record<string, string> = {
@@ -162,7 +162,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed
-      border-ink-200 bg-white/50 px-6 py-14 text-center animate-fade-in">
+      border-ink-200 bg-ink-100/60 px-6 py-14 text-center animate-fade-in">
       <h3 className="text-base font-semibold text-ink-800">{title}</h3>
       <p className="mt-1 max-w-sm text-sm text-ink-500">{description}</p>
       {action && <div className="mt-5">{action}</div>}
@@ -269,7 +269,7 @@ export function Toaster() {
         <div
           key={t.id}
           className={`rounded-lg px-4 py-3 text-sm shadow-raised animate-fade-in ${
-            t.kind === 'success' ? 'bg-ink-900 text-white' : 'bg-rose-600 text-white'
+            t.kind === 'success' ? 'bg-ink-900 text-ink-50 dark:bg-ink-800 dark:text-ink-950' : 'bg-rose-600 text-white'
           }`}
         >
           {t.message}

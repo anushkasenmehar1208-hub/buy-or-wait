@@ -2,9 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/logo.jpg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Buy or Wait?</title>
+    <script>
+      // Pre-hydration theme bootstrap — prevents a light flash for dark users.
+      // Mirrors src/utils/theme.ts (same storage key); kept dependency-free.
+      (function () {
+        try {
+          var t = localStorage.getItem('bow_theme');
+          var dark = t === 'dark' || ((t === 'system' || !t) &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {
+          /* storage unavailable — stay light */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

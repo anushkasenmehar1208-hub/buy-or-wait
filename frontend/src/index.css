@@ -2,7 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Design tokens. Light values are the ORIGINAL palette verbatim (hex -> rgb
+ * triplet), so light mode is pixel-identical to pre-theme builds. Dark values
+ * invert the ink scale (surfaces go deep, text goes soft) and tune the two
+ * accent shades the UI leans on for links/focus (sage-500/600/700).
+ */
 @layer base {
+  :root {
+    --ink-50: 246 247 248;   /* #f6f7f8 */
+    --ink-100: 236 238 240;  /* #eceef0 */
+    --ink-200: 213 217 221;  /* #d5d9dd */
+    --ink-300: 177 185 192;  /* #b1b9c0 */
+    --ink-400: 135 146 156;  /* #87929c */
+    --ink-500: 104 117 127;  /* #68757f */
+    --ink-600: 83 94 103;    /* #535e67 */
+    --ink-700: 68 77 84;     /* #444d54 */
+    --ink-800: 58 65 70;     /* #3a4146 */
+    --ink-900: 35 40 44;     /* #23282c */
+    --ink-950: 22 25 28;     /* #16191c */
+    --surface: 255 255 255;  /* white card/header surface */
+    --sage-500: 87 140 103;  /* #578c67 */
+    --sage-600: 65 112 80;   /* #417050 */
+    --sage-700: 53 89 65;    /* #355941 */
+    --shadow-card: 0 1px 2px 0 rgb(22 25 28 / 0.04), 0 1px 3px 0 rgb(22 25 28 / 0.06);
+    --shadow-raised: 0 4px 12px -2px rgb(22 25 28 / 0.08), 0 2px 4px -2px rgb(22 25 28 / 0.05);
+    color-scheme: light;
+  }
+
+  html.dark {
+    --ink-50: 17 20 23;      /* page background  (#111417) */
+    --ink-100: 24 28 32;     /* raised bands     (#181c20) */
+    --ink-200: 39 45 50;     /* borders          (#272d32) */
+    --ink-300: 60 68 75;     /* strong borders   (#3c444b) */
+    --ink-400: 122 133 143;  /* faint text       (#7a858f) */
+    --ink-500: 148 159 169;  /* secondary text   (#949fa9) */
+    --ink-600: 176 186 195;  /*                  (#b0bac3) */
+    --ink-700: 202 210 217;  /*                  (#cad2d9) */
+    --ink-800: 226 231 236;  /* headings         (#e2e7ec) */
+    --ink-900: 238 241 244;  /* primary text     (#eef1f4) */
+    --ink-950: 246 248 249;  /* max contrast     (#f6f8f9) */
+    --surface: 26 30 34;     /* card surface     (#1a1e22) */
+    --sage-500: 122 169 133; /* #7aa985 — lighter for dark bg */
+    --sage-600: 141 184 153; /* #8db899 */
+    --sage-700: 164 199 174; /* #a4c7ae */
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.4), 0 1px 3px 0 rgb(0 0 0 / 0.35);
+    --shadow-raised: 0 4px 12px -2px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    color-scheme: dark;
+  }
+
   html {
     @apply antialiased;
   }
@@ -11,6 +59,9 @@
   }
   ::selection {
     @apply bg-sage-200;
+  }
+  html.dark ::selection {
+    @apply bg-sage-700;
   }
 }
 
@@ -21,19 +72,29 @@
       focus-visible:ring-sage-500 focus-visible:ring-offset-2
       disabled:opacity-50 disabled:pointer-events-none;
   }
+  /* Ring offset must follow the page surface in both themes. */
+  .btn:focus-visible,
+  .input:focus-visible {
+    --tw-ring-offset-color: rgb(var(--ink-50));
+  }
   .btn-primary {
-    @apply btn bg-ink-900 text-white hover:bg-ink-800 active:scale-[0.98] shadow-card;
+    /* Ink scale is flipped in dark mode, so ink-900 is the light "primary"
+       surface there; keep primary buttons ink-on-ink in both. */
+    @apply btn bg-ink-900 text-ink-50 hover:bg-ink-800 active:scale-[0.98] shadow-card;
   }
   .btn-secondary {
-    @apply btn bg-white text-ink-800 border border-ink-200 hover:border-ink-300 hover:bg-ink-50
+    @apply btn bg-surface text-ink-800 border border-ink-200 hover:border-ink-300 hover:bg-ink-100/60
       active:scale-[0.98];
   }
   .btn-danger {
-    @apply btn bg-white text-rose-600 border border-rose-400/60 hover:bg-rose-400/10
+    @apply btn bg-surface text-rose-600 border border-rose-400/60 hover:bg-rose-400/10
       active:scale-[0.98];
   }
+  html.dark .btn-danger {
+    @apply text-rose-400;
+  }
   .input {
-    @apply block w-full rounded-lg border border-ink-200 bg-white px-3.5 py-2.5 text-sm
+    @apply block w-full rounded-lg border border-ink-200 bg-surface px-3.5 py-2.5 text-sm
       text-ink-900 placeholder-ink-400 shadow-card transition-colors duration-150
       focus:border-sage-500 focus:outline-none focus:ring-2 focus:ring-sage-500/20;
   }
@@ -43,8 +104,11 @@
   .field-error {
     @apply mt-1.5 text-sm text-rose-600;
   }
+  html.dark .field-error {
+    @apply text-rose-400;
+  }
   .card {
-    @apply rounded-xl border border-ink-100 bg-white shadow-card;
+    @apply rounded-xl border border-ink-100 bg-surface shadow-card;
   }
 }
 

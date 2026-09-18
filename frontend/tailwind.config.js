@@ -1,32 +1,38 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Calm, trustworthy fintech palette — deep ink + soft sage accent
+        // Calm, trustworthy fintech palette — deep ink + soft sage accent.
+        // Ink/sage values live in CSS variables (src/index.css) so `darkMode: class`
+        // swaps the palette globally; `rgb(var(--ink-50) / <alpha-value>)` keeps
+        // opacity utilities (bg-ink-50/90, text-ink-700, …) fully functional.
         ink: {
-          50: '#f6f7f8',
-          100: '#eceef0',
-          200: '#d5d9dd',
-          300: '#b1b9c0',
-          400: '#87929c',
-          500: '#68757f',
-          600: '#535e67',
-          700: '#444d54',
-          800: '#3a4146',
-          900: '#23282c',
-          950: '#16191c',
+          50: 'rgb(var(--ink-50) / <alpha-value>)',
+          100: 'rgb(var(--ink-100) / <alpha-value>)',
+          200: 'rgb(var(--ink-200) / <alpha-value>)',
+          300: 'rgb(var(--ink-300) / <alpha-value>)',
+          400: 'rgb(var(--ink-400) / <alpha-value>)',
+          500: 'rgb(var(--ink-500) / <alpha-value>)',
+          600: 'rgb(var(--ink-600) / <alpha-value>)',
+          700: 'rgb(var(--ink-700) / <alpha-value>)',
+          800: 'rgb(var(--ink-800) / <alpha-value>)',
+          900: 'rgb(var(--ink-900) / <alpha-value>)',
+          950: 'rgb(var(--ink-950) / <alpha-value>)',
         },
+        // Opaque surface used for cards/header (white in light, raised dark in dark).
+        surface: 'rgb(var(--surface) / <alpha-value>)',
         sage: {
           50: '#f4f8f5',
           100: '#e4efe6',
           200: '#cadfd0',
           300: '#a4c7ae',
           400: '#78a985',
-          500: '#578c67',
-          600: '#417050',
-          700: '#355941',
+          500: 'rgb(var(--sage-500) / <alpha-value>)',
+          600: 'rgb(var(--sage-600) / <alpha-value>)',
+          700: 'rgb(var(--sage-700) / <alpha-value>)',
           800: '#2c4736',
           900: '#253b2e',
         },
@@ -45,8 +51,8 @@ export default {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 1px 2px 0 rgb(22 25 28 / 0.04), 0 1px 3px 0 rgb(22 25 28 / 0.06)',
-        raised: '0 4px 12px -2px rgb(22 25 28 / 0.08), 0 2px 4px -2px rgb(22 25 28 / 0.05)',
+        card: 'var(--shadow-card)',
+        raised: 'var(--shadow-raised)',
       },
       keyframes: {
         'fade-in': {

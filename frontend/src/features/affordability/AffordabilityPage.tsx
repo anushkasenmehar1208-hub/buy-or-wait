@@ -175,7 +175,7 @@ function DecisionResult({
   return (
     <div className="grid gap-6 lg:grid-cols-5">
       <Card className="lg:col-span-3 animate-fade-in">
-        <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-white ${copy.tone}`}>
+        <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-white dark:text-ink-50 ${copy.tone}`}>
           <span className="text-sm font-semibold">{copy.title}</span>
         </div>
         <p className="mt-3 text-lg text-ink-800">{copy.sub}</p>
