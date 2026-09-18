@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
-import { PageLoader } from '../components/ui';
+import { PageLoader, toast } from '../components/ui';
+import type { User } from '../types';
 import { getStoredTheme, setTheme, watchSystemTheme } from '../utils/theme';
 import type { ThemePreference } from '../utils/theme';
 
@@ -71,9 +72,6 @@ export function ProtectedLayout() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-ink-500 sm:block">
-              {user.full_name || user.email}
-            </span>
             <button
               type="button"
               onClick={cycleTheme}
@@ -102,13 +100,7 @@ export function ProtectedLayout() {
                 </svg>
               )}
             </button>
-            <button
-              onClick={signout}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-ink-500 transition-colors
-                hover:bg-ink-100 hover:text-ink-800"
-            >
-              Sign out
-            </button>
+            <ProfileMenu user={user} theme={theme} onCycleTheme={cycleTheme} onSignout={signout} />
           </div>
         </div>
         {/* mobile nav */}
@@ -136,5 +128,132 @@ export function ProtectedLayout() {
         Buy or Wait? — educational financial planning tool. Not financial advice.
       </footer>
     </div>
+  );
+}
+
+/**
+ * Circular avatar button in the navbar with an anchored dropdown menu.
+ *
+ * Closes on: outside pointer-down, Escape, a second click on the avatar, or
+ * activating any item. Entries with no page yet (Settings, Delete account)
+ * say so honestly via toast instead of pretending.
+ */
+function ProfileMenu({ user, theme, onCycleTheme, onSignout }: {
+  user: User;
+  theme: ThemePreference;
+  onCycleTheme: () => void;
+  onSignout: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Close on any pointer-down outside the avatar + menu, and on Escape.
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  const initials = (user.full_name || user.email)
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]!.toUpperCase())
+    .join('');
+
+  const themeLabel = theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System';
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Account menu"
+        title="Account"
+        className={`flex h-9 w-9 items-center justify-center rounded-full bg-sage-600
+          text-sm font-semibold text-ink-50 transition-colors hover:bg-sage-700
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500
+          focus-visible:ring-offset-2 ${open ? 'ring-2 ring-sage-500 ring-offset-2' : ''}`}
+      >
+        {/* initials avatar — profile-picture upload comes later */}
+        <span aria-hidden="true">{initials || 'U'}</span>
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          aria-label="Account"
+          className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-xl
+            border border-ink-100 bg-surface shadow-card"
+        >
+          <div className="border-b border-ink-100 px-4 py-3">
+            <p className="truncate text-sm font-medium text-ink-900">
+              {user.full_name || 'Account'}
+            </p>
+            <p className="truncate text-xs text-ink-500">{user.email}</p>
+          </div>
+          <div className="p-1.5">
+            <MenuItem
+              label="Profile"
+              onClick={() => {
+                setOpen(false);
+                navigate('/profile');
+              }}
+            />
+            <MenuItem label={`Appearance · ${themeLabel}`} onClick={onCycleTheme} />
+            <MenuItem label="Settings" onClick={() => toast('Settings is not available yet.')} />
+          </div>
+          <div className="border-t border-ink-100 p-1.5">
+            <MenuItem
+              label="Sign out"
+              onClick={() => {
+                setOpen(false);
+                onSignout();
+              }}
+            />
+          </div>
+          <div className="border-t border-ink-100 p-1.5">
+            <MenuItem
+              label="Delete account"
+              destructive
+              onClick={() => toast('Account deletion is not available yet.')}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MenuItem({ label, onClick, destructive = false }: {
+  label: string;
+  onClick: () => void;
+  destructive?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors
+        ${destructive
+          ? 'text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10'
+          : 'text-ink-700 hover:bg-ink-100'}`}
+    >
+      {label}
+    </button>
   );
 }
