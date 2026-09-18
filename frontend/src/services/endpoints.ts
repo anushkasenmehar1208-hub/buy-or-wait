@@ -21,6 +21,18 @@ export const authApi = {
   me: () => api.get<User>('/api/auth/me'),
 };
 
+export const accountApi = {
+  updateProfile: (data: { full_name: string }) =>
+    api.put<User>('/api/account/profile', data),
+  uploadAvatar: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return api.put<User>('/api/account/avatar', form);
+  },
+  deleteAvatar: () => api.delete<User>('/api/account/avatar'),
+  deleteAccount: () => api.delete<void>('/api/account'),
+};
+
 export interface ProfileUpsertPayload {
   currency: string;
   current_balance: string;

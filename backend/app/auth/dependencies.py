@@ -27,3 +27,18 @@ def get_current_user(
     if not user:
         raise AuthAppError("User no longer exists")
     return user
+
+
+def get_optional_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(_bearer),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """Like get_current_user but returns None instead of 401 (used by avatar GET,
+    which <img> tags hit without an Authorization header and validate by URL
+    signature instead)."""
+    if credentials is None:
+        return None
+    user_id = decode_access_token(credentials.credentials)
+    if not user_id:
+        return None
+    return UserRepository(db).get_by_id(user_id)

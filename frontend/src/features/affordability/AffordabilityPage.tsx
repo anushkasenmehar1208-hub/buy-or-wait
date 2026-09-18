@@ -63,7 +63,7 @@ export function AffordabilityPage() {
         <Card className="border-amber-400/40 bg-amber-400/5">
           <p className="text-sm text-ink-700">
             You need a financial profile first.{' '}
-            <Link to="/profile" className="font-medium text-sage-700 hover:underline">
+            <Link to="/financial-profile" className="font-medium text-sage-700 hover:underline">
               Create one now
             </Link>
             .

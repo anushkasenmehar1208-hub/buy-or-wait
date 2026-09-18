@@ -8,6 +8,9 @@ export interface User {
   id: string;
   email: string;
   full_name: string;
+  /** Present when a profile picture exists; append nothing — server cache-busts via ?v=. */
+  avatar_url: string | null;
+  avatar_updated_at: string | null;
 }
 
 export interface AuthResponse {

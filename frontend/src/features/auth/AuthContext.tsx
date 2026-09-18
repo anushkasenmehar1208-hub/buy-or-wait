@@ -10,6 +10,8 @@ interface AuthState {
   signin: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, fullName: string) => Promise<void>;
   signout: () => void;
+  /** Replace the stored user object (used by account mutations). */
+  setUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -59,8 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, signin, signup, signout }),
-    [user, loading, signin, signup, signout],
+    () => ({ user, loading, signin, signup, signout, setUser }),
+    [user, loading, signin, signup, signout, setUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

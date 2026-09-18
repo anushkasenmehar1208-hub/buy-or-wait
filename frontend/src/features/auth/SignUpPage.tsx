@@ -32,7 +32,7 @@ export function SignUpPage() {
     setLoading(true);
     try {
       await signup(email, password, fullName);
-      navigate('/profile', { replace: true });
+      navigate('/financial-profile', { replace: true });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Sign up failed');
     } finally {

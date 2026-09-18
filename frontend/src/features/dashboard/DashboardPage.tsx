@@ -46,7 +46,7 @@ export function DashboardPage() {
         title="Set up your financial profile"
         description="Add your balance, income, and expenses so the engine can forecast your next 90 days."
         action={
-          <Link to="/profile">
+          <Link to="/financial-profile">
             <Button>Create profile</Button>
           </Link>
         }

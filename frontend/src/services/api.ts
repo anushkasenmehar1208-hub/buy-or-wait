@@ -29,8 +29,10 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const isFormData = options.body instanceof FormData;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    // Let the browser set multipart FormData boundaries; JSON otherwise.
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers as Record<string, string>),
   };
   const token = getToken();
@@ -78,8 +80,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 export const api = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, data?: unknown) =>
-    request<T>(path, { method: 'POST', body: data ? JSON.stringify(data) : undefined }),
+    request<T>(path, { method: 'POST', body: encodeBody(data) }),
   put: <T>(path: string, data: unknown) =>
-    request<T>(path, { method: 'PUT', body: JSON.stringify(data) }),
+    request<T>(path, { method: 'PUT', body: encodeBody(data) }),
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 };
+
+/** JSON-encode plain objects; pass FormData through untouched (multipart). */
+function encodeBody(data: unknown): BodyInit | undefined {
+  if (data === undefined) return undefined;
+  return data instanceof FormData ? data : JSON.stringify(data);
+}

@@ -49,6 +49,22 @@ class UserResponse(BaseModel):
     id: str
     email: EmailStr
     full_name: str
+    # Client appends ?v=<avatar_updated_at> to cache-bust; null → show initials.
+    avatar_url: Optional[str] = None
+    avatar_updated_at: Optional[datetime] = None
+
+
+class UpdateProfileRequest(BaseModel):
+    """Account settings: display name. Email is intentionally immutable here."""
+    full_name: str = Field(min_length=1, max_length=120)
+
+    @field_validator("full_name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be blank")
+        return v
 
 
 # ---------------------------------------------------------------- profile

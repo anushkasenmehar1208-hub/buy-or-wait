@@ -5,7 +5,8 @@ import uuid
 from typing import Optional
 
 from sqlalchemy import (
-    JSON, Date, DateTime, Enum as SAEnum, ForeignKey, Index, Integer, Numeric, String, Text,
+    JSON, Date, DateTime, Enum as SAEnum, ForeignKey, Index, Integer, LargeBinary, Numeric,
+    String, Text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -30,10 +31,34 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(120), nullable=False, default="")
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    # Set when an avatar exists; lets clients cache-bust the avatar URL.
+    avatar_updated_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     profile: Mapped[Optional["FinancialProfile"]] = relationship(
         back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
+    avatar: Mapped[Optional["UserAvatar"]] = relationship(
+        back_populates="user", uselist=False, cascade="all, delete-orphan"
+    )
+
+
+class UserAvatar(Base):
+    """Profile picture bytes, stored in Postgres so it survives on ephemeral-disk
+    hosts (Render) and needs no external object storage."""
+    __tablename__ = "user_avatars"
+
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    content_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    data: Mapped[bytes] = mapped_column("data", type_=LargeBinary, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
+    )
+
+    user: Mapped[User] = relationship(back_populates="avatar")
 
 
 class FinancialProfile(Base):
