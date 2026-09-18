@@ -8,6 +8,25 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 _LOCAL_PG_HOSTS = {"localhost", "127.0.0.1", "::1", "0.0.0.0"}
 
 
+@lru_cache
+def _libpq_supports_direct_tls() -> bool:
+    """True when the runtime libpq understands ``sslnegotiation`` (libpq >= 17).
+
+    The option was introduced in libpq 17; older builds reject it outright
+    ("invalid connection option \"sslnegotiation\""), so hosts linking such a
+    libpq (e.g. managed PaaS images) must never receive it.
+    """
+    try:
+        from psycopg2 import extensions as _ext
+    except Exception:  # pragma: no cover - psycopg2 missing is fatal elsewhere
+        return False
+    try:
+        libpq_version = int(_ext.libpq_version())
+    except Exception:  # pragma: no cover - very old psycopg2 without the probe
+        return False
+    return libpq_version >= 170000
+
+
 def with_direct_tls_negotiation(url: str) -> str:
     """Add ``sslnegotiation=direct`` to remote postgres URLs that require SSL.
 
@@ -21,6 +40,8 @@ def with_direct_tls_negotiation(url: str) -> str:
 
     Applied only when all of these hold, so local development and tests are
     unaffected and explicit URLs always win:
+      * the runtime libpq is >= 17 (older builds raise
+        ``invalid connection option "sslnegotiation"`` — e.g. some PaaS images)
       * postgres scheme (plain or +psycopg2)
       * non-local host, port 5432 (explicit or default)
       * ``sslmode=require`` is already set
@@ -30,6 +51,8 @@ def with_direct_tls_negotiation(url: str) -> str:
         parsed = urlparse(url)
         port = parsed.port  # may raise ValueError for malformed ports
     except ValueError:
+        return url
+    if not _libpq_supports_direct_tls():
         return url
     if parsed.scheme not in ("postgresql", "postgres", "postgresql+psycopg2", "postgres+psycopg2"):
         return url
