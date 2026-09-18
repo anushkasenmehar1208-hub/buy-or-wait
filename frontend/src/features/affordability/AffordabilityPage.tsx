@@ -117,6 +117,7 @@ export function AffordabilityPage() {
           request={result}
           decision={result.decision}
           currency={result.currency}
+          minBalance={parseFloat(profile?.minimum_safe_balance ?? '0')}
         />
       )}
     </div>
@@ -161,10 +162,12 @@ function DecisionResult({
   request,
   decision,
   currency,
+  minBalance,
 }: {
   request: PurchaseRequestWithDecision;
   decision: Decision;
   currency: string;
+  minBalance: number;
 }) {
   const copy = verdictCopy[decision.affordability_status] ?? verdictCopy.not_affordable;
   const plan = parsePlan(decision.payment_plan, currency);
@@ -222,13 +225,13 @@ function DecisionResult({
           When each payment happens over the next 90 days.
         </p>
         <ForecastChart
-          minBalance={parseFloat(profile?.minimum_safe_balance ?? '0')}
+          minBalance={minBalance}
           plan={plan}
         />
         <p className="mt-3 text-xs leading-relaxed text-ink-400">
           The engine checks this schedule against your full 90-day forecast — income,
           recurring expenses, commitments, and pending payments — so your balance never
-          drops below your {formatMoney(profile?.minimum_safe_balance ?? '0', currency)} minimum.
+          drops below your {formatMoney(minBalance.toFixed(2), currency)} minimum.
         </p>
       </Card>
     </div>
